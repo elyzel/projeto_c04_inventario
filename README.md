@@ -20,7 +20,7 @@ A proposta do sistema é gerenciar um inventário coletivo de uma campanha de RP
 O projeto foi estruturado em entregas parciais, contemplando as seguintes funcionalidades:
 
 ### 📦 Entregas Parciais 1 & 2 (Estruturação e Grafos)
-- [ ] **Menu Inicial:** Interface iterativa para navegação entre as funcionalidades.
+- [x] **Menu Inicial:** Interface iterativa para navegação entre as funcionalidades.
 - [ ] **Inserção de Itens:** Cadastro contendo Nome, Dono, Propriedade Mágica, ID e Raridade (0 a 100, onde 0 é comum e 100 raríssimo).
 - [ ] **Grafo de Similaridade:** Cadastro de relações e pesos (similaridade) entre pares de itens utilizando grafos.
 - [ ] **Busca por Similaridade:** Listagem de itens que não pertencem a um jogador específico e que possuem similaridade maior que *X* em relação a um determinado item.
