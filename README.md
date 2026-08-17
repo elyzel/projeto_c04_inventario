@@ -48,7 +48,7 @@ O projeto foi estruturado em entregas parciais, contemplando as seguintes funcio
 ## 🚀 Como Executar
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/nome-do-repositorio.git
+   git clone https://github.com/elyzel/projeto_c04_inventario.git
    ```
 2. Compile o código-fonte (exemplo em C++):
    ```bash
