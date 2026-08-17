@@ -1,3 +1,11 @@
+/*
+Dev 1: Ana Julia - 1048
+Dev 2: Caroline Ferreira - 872
+Dev 3: Daniel Bernardes - 2353
+Dev 4: Eliseu Marinho - 847
+Dev 5: Wendel Iury - 972
+*/
+
 #include <iostream>
 #include <string>
  
@@ -71,7 +79,9 @@ void exibirMenu()
  
 	cout << endl;
  
-	criar_texto("  ======= INVENTARIO D&D ======= ");
+	criar_texto("==========================================");
+	criar_texto("             INVENTARIO D&D               ");
+	criar_texto("==========================================");
 	criar_texto("");
 	criar_texto(" 1 > Inserir item");
 	criar_texto(" 2 > Cadastrar similaridade de itens");
@@ -97,9 +107,11 @@ void executarMenu()
 	{
 		exibirMenu();
  
-		cin >> opcao;
- 
-		cout << endl;
+		if(!(cin >> opcao)){
+			cin.clear(); 
+			cin.ignore();
+			cout << "Entrada invalida! Por favor, digite um numero.";
+		}
  
 		switch (opcao)
 		{
@@ -152,7 +164,8 @@ void executarMenu()
 			return;
  
 		default:
-			cout << "Opcao invalida!" << endl;
+			cout << endl << "Opcao invalida!\n";
+			esperarEnter();
 		}
  
 		cout << endl;
