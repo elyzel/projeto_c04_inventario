@@ -1,3 +1,11 @@
+/*
+Dev 1: Ana Julia - 1048
+Dev 2: Caroline Ferreira - 872
+Dev 3: Daniel Bernardes - 2353
+Dev 4: Eliseu Marinho - 847
+Dev 5: Wendel Iury - 972
+*/
+
 #include <iostream>
 #include <string>
  
