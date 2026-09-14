@@ -18,12 +18,49 @@ void criar_texto(string texto)
 	cout << endl;
 	cout << vermelho << texto << reset << endl;
 }
+
+struct Item
+{
+	string nome;
+	string dono;
+	string propriedadeMagica;
+	int id;
+	int raridade;
+	Item* proximo;
+};
+
+Item* inicio = nullptr;
+Item* fim = nullptr;
  
 void inserirItem()
 {
-	cout << "Funcao Inserir Item em construcao.";
+	Item* novoItem = new Item;
+	cout << "Digite o nome do item: ";
+	cin >> (*novoItem).nome;
+	cout << "Digite o dono do item: ";
+	cin >> (*novoItem).dono;
+	cout << "Digite a propriedade mágica do item: ";
+	cin >> (*novoItem).propriedadeMagica;
+	cout << "Digite o ID do item: ";
+	cin >> (*novoItem).id;
+	cout << "Digite a raridade do item: ";
+	cin >> (*novoItem).raridade;
+	(*novoItem).proximo = nullptr;
+
+	if (inicio == nullptr)
+	{
+		inicio = novoItem;
+		fim = novoItem;
+	}
+	else
+	{
+		(*fim).proximo = novoItem;
+		fim = novoItem;
+	}
+
+	cout << "Item cadastrado com sucesso!" << endl;
 }
- 
+
 void cadastrarSimilaridade() 
 {
 	cout << "Funcao Cadastrar Similaridade em construcao.";
