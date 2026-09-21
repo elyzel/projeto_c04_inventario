@@ -7,6 +7,7 @@ Dev 5: Wendel Iury - 972
 */
 
 #include <iostream>
+#include <list>
 #include <string>
  
 using namespace std;
@@ -26,12 +27,41 @@ struct Item
 	string propriedadeMagica;
 	int id;
 	int raridade;
+	list<int> semelhanca;
 	Item* proximo;
 };
 
 Item* inicio = nullptr;
 Item* fim = nullptr;
- 
+
+void preencher_semelhancas(Item *atual_item)
+{
+	Item* outro = inicio;
+	int outro_index = 0;
+
+	while (outro != nullptr)
+	{
+		int valor;
+
+		if ((*atual_item).id == outro_index)
+		{
+			valor = 0;
+		}
+		else
+		{
+			cout << "Digite a semelhanca entre "<< (*atual_item).nome<< " e "<< (*outro).nome<< ": ";
+
+			cin >> valor;
+			(*outro).semelhanca.push_back(valor);
+		}
+
+		(*atual_item).semelhanca.push_back(valor);
+
+		outro = (*outro).proximo;
+		outro_index++;
+	}
+}
+
 void inserirItem()
 {
 	Item* novoItem = new Item;
@@ -41,8 +71,6 @@ void inserirItem()
 	cin >> (*novoItem).dono;
 	cout << "Digite a propriedade mágica do item: ";
 	cin >> (*novoItem).propriedadeMagica;
-	cout << "Digite o ID do item: ";
-	cin >> (*novoItem).id;
 	cout << "Digite a raridade do item: ";
 	cin >> (*novoItem).raridade;
 	(*novoItem).proximo = nullptr;
@@ -51,12 +79,16 @@ void inserirItem()
 	{
 		inicio = novoItem;
 		fim = novoItem;
+		(*novoItem).id = 0;
 	}
 	else
 	{
+		(*novoItem).id = (*fim).id + 1;
 		(*fim).proximo = novoItem;
 		fim = novoItem;
 	}
+
+	preencher_semelhancas(novoItem);
 
 	cout << "Item cadastrado com sucesso!" << endl;
 }
