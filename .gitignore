@@ -1,1 +1,5 @@
-Project/output/main.exe
+# Ignorar a pasta output e todo o seu conteúdo
+output/
+
+# Ignorar qualquer arquivo .exe
+*.exe
