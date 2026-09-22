@@ -34,32 +34,38 @@ struct Item
 Item* inicio = nullptr;
 Item* fim = nullptr;
 
-void preencher_semelhancas(Item *atual_item)
+void preencher_semelhancas(string nome1, string nome2)
 {
+	Item* primeiro = inicio;
+	int primeiro_index = 0;
+	
+	while ((*primeiro).nome != nome1){
+		primeiro = (*primeiro).proximo;
+		primeiro_index++;
+	}
+
 	Item* outro = inicio;
 	int outro_index = 0;
-
-	while (outro != nullptr)
-	{
-		int valor;
-
-		if ((*atual_item).id == outro_index)
-		{
-			valor = 0;
-		}
-		else
-		{
-			cout << "Digite a semelhanca entre "<< (*atual_item).nome<< " e "<< (*outro).nome<< ": ";
-
-			cin >> valor;
-			(*outro).semelhanca.push_back(valor);
-		}
-
-		(*atual_item).semelhanca.push_back(valor);
-
+	
+	while ((*outro).nome != nome2){
 		outro = (*outro).proximo;
 		outro_index++;
 	}
+
+	if ((*outro).nome == (*primeiro).nome){
+		cout << "um item nao pode ter semelhanca com ele mesmo";
+
+	return;
+	}
+	
+	int valor;
+
+	cout << "Digite a semelhanca entre "<< (*primeiro).nome<< " e "<< (*outro).nome<< ": ";
+
+	cin >> valor;
+	(*outro).semelhanca.push_back(valor);
+
+	(*primeiro).semelhanca.push_back(valor);
 }
 
 void inserirItem()
@@ -88,14 +94,19 @@ void inserirItem()
 		fim = novoItem;
 	}
 
-	preencher_semelhancas(novoItem);
+	// preencher_semelhancas(novoItem);
 
 	cout << "Item cadastrado com sucesso!" << endl;
 }
 
 void cadastrarSimilaridade() 
 {
-	cout << "Funcao Cadastrar Similaridade em construcao.";
+	string nome1, nome2;
+
+	cout << "Informe o nome do item 1 e item 2 respectivamente:" << endl;
+	cin >> nome1 >> nome2;
+
+	preencher_semelhancas(nome1, nome2);
 }
  
 void buscarItens() 
