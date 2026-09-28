@@ -7,8 +7,8 @@ Dev 5: Wendel Iury - 972
 */
 
 #include <iostream>
-#include <list>
 #include <string>
+#include <vector>
 
 using namespace std;
  
@@ -27,12 +27,13 @@ struct Item
 	string propriedadeMagica;
 	int id;
 	int raridade;
-	list<int> semelhanca;
+	vector<int> semelhanca;
 	Item* proximo;
 };
 
 Item* inicio = nullptr;
 Item* fim = nullptr;
+int quantidade_de_items = 0;
 
 // Isso é um ponteiro para ponteiro
 void encontrar_item(string nome, Item** item_sendo_buscado, int* item_sendo_buscado_index) {
@@ -68,9 +69,11 @@ bool preencher_semelhancas(string nome1, string nome2)
 	cout << "Digite a semelhanca entre "<< (*item1).nome<< " e "<< (*item2).nome<< ": ";
 
 	cin >> valor;
-	(*item2).semelhanca.push_back(valor);
+	(*item2).semelhanca.resize(quantidade_de_items);
+	(*item2).semelhanca[item1_index] = valor;
 
-	(*item1).semelhanca.push_back(valor);
+	(*item1).semelhanca.resize(quantidade_de_items);
+	(*item1).semelhanca[item2_index] = valor;
 
 	return true;
 }
@@ -92,14 +95,15 @@ void inserirItem()
 	{
 		inicio = novoItem;
 		fim = novoItem;
-		(*novoItem).id = 0;
 	}
 	else
 	{
-		(*novoItem).id = (*fim).id + 1;
 		(*fim).proximo = novoItem;
 		fim = novoItem;
 	}
+
+	(*novoItem).id = quantidade_de_items;
+	quantidade_de_items++;
 
 	cout << "Item cadastrado com sucesso!" << endl;
 }
