@@ -9,7 +9,7 @@ Dev 5: Wendel Iury - 972
 #include <iostream>
 #include <list>
 #include <string>
- 
+
 using namespace std;
  
 void criar_texto(string texto)
@@ -34,38 +34,45 @@ struct Item
 Item* inicio = nullptr;
 Item* fim = nullptr;
 
-void preencher_semelhancas(string nome1, string nome2)
+// Isso é um ponteiro para ponteiro
+void encontrar_item(string nome, Item** item_sendo_buscado, int* item_sendo_buscado_index) {
+	*item_sendo_buscado = inicio;
+	*item_sendo_buscado_index = 0;
+
+	while ((*(*item_sendo_buscado)).nome != nome) {
+		*item_sendo_buscado = (*(*item_sendo_buscado)).proximo;
+		(*item_sendo_buscado_index)++;
+	}
+}
+
+bool preencher_semelhancas(string nome1, string nome2)
 {
-	Item* primeiro = inicio;
-	int primeiro_index = 0;
+	Item* item1;
+	int item1_index = 0;
+
+	encontrar_item(nome1, &item1, &item1_index);
+
+	Item* item2;
+	int item2_index = 0;
 	
-	while ((*primeiro).nome != nome1){
-		primeiro = (*primeiro).proximo;
-		primeiro_index++;
-	}
+	encontrar_item(nome2, &item2, &item2_index);
 
-	Item* outro = inicio;
-	int outro_index = 0;
-	
-	while ((*outro).nome != nome2){
-		outro = (*outro).proximo;
-		outro_index++;
-	}
+	if ((*item2).nome == (*item1).nome){
+		cout << "Um item nao pode ter semelhanca com ele mesmo";
 
-	if ((*outro).nome == (*primeiro).nome){
-		cout << "um item nao pode ter semelhanca com ele mesmo";
-
-	return;
+		return false;
 	}
 	
 	int valor;
 
-	cout << "Digite a semelhanca entre "<< (*primeiro).nome<< " e "<< (*outro).nome<< ": ";
+	cout << "Digite a semelhanca entre "<< (*item1).nome<< " e "<< (*item2).nome<< ": ";
 
 	cin >> valor;
-	(*outro).semelhanca.push_back(valor);
+	(*item2).semelhanca.push_back(valor);
 
-	(*primeiro).semelhanca.push_back(valor);
+	(*item1).semelhanca.push_back(valor);
+
+	return true;
 }
 
 void inserirItem()
@@ -94,8 +101,6 @@ void inserirItem()
 		fim = novoItem;
 	}
 
-	// preencher_semelhancas(novoItem);
-
 	cout << "Item cadastrado com sucesso!" << endl;
 }
 
@@ -106,7 +111,13 @@ void cadastrarSimilaridade()
 	cout << "Informe o nome do item 1 e item 2 respectivamente:" << endl;
 	cin >> nome1 >> nome2;
 
-	preencher_semelhancas(nome1, nome2);
+	bool preencheu_semelhanca = preencher_semelhancas(nome1, nome2);
+
+	if (preencheu_semelhanca) {
+		cout << "Semelança preenchida" << endl;
+	}else {
+		cout << "Nao foi possivel preencher semelhanca" << endl;
+	}
 }
  
 void buscarItens() 
@@ -197,46 +208,38 @@ void executarMenu()
 		{
 		case 1:
 			inserirItem();
-			esperarEnter();
 			break;
+
 		case 2:
 			cadastrarSimilaridade();
-			esperarEnter();
 			break;
  
 		case 3:
 			buscarItens();
-			esperarEnter();
 			break;
  
 		case 4:
 			verificarExistencia();
-			esperarEnter();
 			break;
  
 		case 5:
 			listarAlfabeticamente();
-			esperarEnter();
 			break;
  
 		case 6:
 			listarRaridade();
-			esperarEnter();
-			break;;
+			break;
  
 		case 7:
 			buscarPropriedade();
-			esperarEnter();
 			break;
  
 		case 8:
 			contarPropriedades();
-			esperarEnter();
-			break;;
+			break;
  
 		case 9:
 			removerItens();
-			esperarEnter();
 			break;
  
 		case 10:
@@ -245,8 +248,9 @@ void executarMenu()
  
 		default:
 			cout << endl << "Opcao invalida!\n";
-			esperarEnter();
 		}
+
+		esperarEnter();
  
 		cout << endl;
 	}
