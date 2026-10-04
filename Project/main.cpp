@@ -9,6 +9,7 @@ Dev 5: Wendel Iury - 972
 #include <iostream>
 #include <string>
 #include <vector>
+const int MAX_ITENS = 100;
 
 using namespace std;
  
@@ -27,7 +28,7 @@ struct Item
 	string propriedadeMagica;
 	int id;
 	int raridade;
-	vector<int> semelhanca;
+	int semelhanca[MAX_ITENS];
 	Item* proximo;
 };
 
@@ -69,10 +70,8 @@ bool preencher_semelhancas(string nome1, string nome2)
 	cout << "Digite a semelhanca entre "<< (*item1).nome<< " e "<< (*item2).nome<< ": ";
 
 	cin >> valor;
-	(*item2).semelhanca.resize(quantidade_de_items);
-	(*item2).semelhanca[item1_index] = valor;
 
-	(*item1).semelhanca.resize(quantidade_de_items);
+	(*item2).semelhanca[item1_index] = valor;
 	(*item1).semelhanca[item2_index] = valor;
 
 	return true;
@@ -81,6 +80,12 @@ bool preencher_semelhancas(string nome1, string nome2)
 void inserirItem()
 {
 	Item* novoItem = new Item;
+
+	for (int i = 0; i < MAX_ITENS; i++)
+	{
+		(*novoItem).semelhanca[i] = 0;
+	}
+
 	cout << "Digite o nome do item: ";
 	cin >> (*novoItem).nome;
 	cout << "Digite o dono do item: ";
@@ -126,7 +131,63 @@ void cadastrarSimilaridade()
  
 void buscarItens() 
 {
-	cout << "Funcao Buscar Itens em construcao.";
+	string jogador;
+	int valor; 
+	int codigo;
+
+	cout << "Digite o nome do jogador: ";
+	cin >> jogador;
+
+	cout << "Digite o valor minimo de similaridade: ";
+	cin >> valor;
+
+	cout << endl;
+
+	cout << "Itens cadastrados: " << endl; // Para usuario saber quais itens ele pode buscar semelhanca e saber o codigo do item
+
+	Item* atual = inicio;
+
+	while (atual != nullptr)
+	{
+		cout << "Codigo: " << (*atual).id 
+			<< " | Nome: " << (*atual).nome 
+			<< " | Dono: " << (*atual).dono << endl;
+
+		atual = (*atual).proximo;
+	}
+
+	cout << "Digite o codigo do item que deseja buscar semelhanca: ";
+	cin >> codigo; 
+
+	Item* itemC = inicio;
+
+	while (itemC != nullptr && (*itemC).id != codigo)
+	{
+		itemC = (*itemC).proximo;
+	}
+
+	if (itemC == nullptr) 
+	{
+		cout << "Item nao encontrado!" << endl;
+		return;
+	}
+
+	cout << endl;
+
+	atual = inicio;
+
+	while (atual != nullptr)
+	{
+		if ((*atual).id != (*itemC).id && (*atual).dono != jogador && (*itemC).semelhanca[(*atual).id] > valor)
+		{
+			cout << "Nome: " << (*atual).nome 
+				<< " | Dono: " << (*atual).dono 
+				<< " | Semelhanca: " << (*itemC).semelhanca[(*atual).id] << endl;
+		}
+
+		atual = (*atual).proximo;
+	}
+
 }
  
 void verificarExistencia()  
