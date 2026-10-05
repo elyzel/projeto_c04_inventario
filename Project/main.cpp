@@ -8,7 +8,6 @@ Dev 5: Wendel Iury - 972
 
 #include <iostream>
 #include <string>
-#include <vector>
 const int MAX_ITENS = 100;
 
 using namespace std;
