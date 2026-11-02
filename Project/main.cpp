@@ -65,31 +65,38 @@ void insert(node* & current, Item* data)
 }
 
 // Isso é um ponteiro para ponteiro
-void encontrar_item(string nome, Item** item_sendo_buscado, int* item_sendo_buscado_index)
+void encontrar_item(int id, Item** item_sendo_buscado, int* item_sendo_buscado_index)
 {
     *item_sendo_buscado = inicio;
     *item_sendo_buscado_index = 0;
 
-    while ((*(*item_sendo_buscado)).nome != nome)
+    while (*item_sendo_buscado != nullptr && (*(*item_sendo_buscado)).id != id)
     {
         *item_sendo_buscado = (*(*item_sendo_buscado)).proximo;
         (*item_sendo_buscado_index)++;
     }
 }
 
-bool preencher_semelhancas(string nome1, string nome2)
+bool preencher_semelhancas(int id1, int id2)
 {
     Item* item1;
     int item1_index = 0;
 
-    encontrar_item(nome1, &item1, &item1_index);
+    encontrar_item(id1, &item1, &item1_index);
 
     Item* item2;
     int item2_index = 0;
 
-    encontrar_item(nome2, &item2, &item2_index);
+    encontrar_item(id2, &item2, &item2_index);
 
-    if ((*item2).nome == (*item1).nome)
+    if (item1 == nullptr || item2 == nullptr)
+    {
+        cout << "Item nao encontrado" << endl;
+
+        return false;
+    }
+
+    if ((*item2).id == (*item1).id)
     {
         cout << "Um item nao pode ter semelhanca com ele mesmo";
 
@@ -98,9 +105,10 @@ bool preencher_semelhancas(string nome1, string nome2)
 
     int valor;
 
-    cout << "Digite a semelhanca entre " << (*item1).nome << " e " << (*item2).nome << ": ";
+    cout << "Digite a semelhanca entre o item 1 (" << (*item1).nome << ") e o item 2 (" << (*item2).nome << "): ";
 
     cin >> valor;
+    cin.ignore(10000, '\n');
 
     (*item2).semelhanca[item1_index] = valor;
     (*item1).semelhanca[item2_index] = valor;
@@ -118,13 +126,14 @@ void inserirItem()
     }
 
     cout << "Digite o nome do item: ";
-    cin >> (*novoItem).nome;
+    getline(cin, (*novoItem).nome);
     cout << "Digite o dono do item: ";
-    cin >> (*novoItem).dono;
+    getline(cin, (*novoItem).dono);
     cout << "Digite a propriedade mágica do item: ";
-    cin >> (*novoItem).propriedadeMagica;
+    getline(cin, (*novoItem).propriedadeMagica);
     cout << "Digite a raridade do item: ";
     cin >> (*novoItem).raridade;
+    cin.ignore(10000, '\n');
     (*novoItem).proximo = nullptr;
 
     if (inicio == nullptr)
@@ -143,17 +152,52 @@ void inserirItem()
 
     insert(raiz, novoItem); // guarda na arvore
 
-    cout << "Item cadastrado com sucesso!" << endl;
+    cout << "Item cadastrado com sucesso! Codigo do item: " << (*novoItem).id << endl;
+}
+
+void listarItensCadastrados()
+{
+    char resposta;
+
+    cout << "Deseja ver a lista de itens cadastrados? (s/n): ";
+    cin >> resposta;
+    cin.ignore(10000, '\n');
+
+    if (resposta == 's' || resposta == 'S')
+    {
+        Item* atual = inicio;
+
+        while (atual != nullptr)
+        {
+            cout << "Codigo: " << (*atual).id
+                << " | Nome: " << (*atual).nome
+                << " | Dono: " << (*atual).dono << endl;
+
+            atual = (*atual).proximo;
+        }
+    }
 }
 
 void cadastrarSimilaridade()
 {
-    string nome1, nome2;
+    int id1, id2;
 
-    cout << "Informe o nome do item 1 e item 2 respectivamente:" << endl;
-    cin >> nome1 >> nome2;
+    if (inicio == nullptr)
+    {
+        cout << "Nenhum item cadastrado." << endl;
+        return;
+    }
 
-    bool preencheu_semelhanca = preencher_semelhancas(nome1, nome2);
+    listarItensCadastrados();
+
+    cout << "Informe o codigo do item 1: ";
+    cin >> id1;
+    cin.ignore(10000, '\n');
+    cout << "Informe o codigo do item 2: ";
+    cin >> id2;
+    cin.ignore(10000, '\n');
+
+    bool preencheu_semelhanca = preencher_semelhancas(id1, id2);
 
     if (preencheu_semelhanca)
     {
@@ -171,30 +215,29 @@ void buscarItens()
     int valor;
     int codigo;
 
+    if (inicio == nullptr)
+    {
+        cout << "Nenhum item cadastrado." << endl;
+        return;
+    }
+
     cout << "Digite o nome do jogador: ";
-    cin >> jogador;
+    getline(cin, jogador);
 
     cout << "Digite o valor minimo de similaridade: ";
     cin >> valor;
+    cin.ignore(10000, '\n');
 
     cout << endl;
 
-    cout << "Itens cadastrados: " << endl;
     // Para usuario saber quais itens ele pode buscar semelhanca e saber o codigo do item
-
-    Item* atual = inicio;
-
-    while (atual != nullptr)
-    {
-        cout << "Codigo: " << (*atual).id
-            << " | Nome: " << (*atual).nome
-            << " | Dono: " << (*atual).dono << endl;
-
-        atual = (*atual).proximo;
-    }
+    listarItensCadastrados();
 
     cout << "Digite o codigo do item que deseja buscar semelhanca: ";
     cin >> codigo;
+    cin.ignore(10000, '\n');
+
+    Item* atual;
 
     Item* itemC = inicio;
 
@@ -210,6 +253,10 @@ void buscarItens()
     }
 
     cout << endl;
+    cout << "Itens que nao pertencem a " << jogador << " e tem semelhanca maior que "
+        << valor << " com " << (*itemC).nome << ":" << endl;
+
+    bool encontrou = false;
 
     atual = inicio;
 
@@ -220,9 +267,16 @@ void buscarItens()
             cout << "Nome: " << (*atual).nome
                 << " | Dono: " << (*atual).dono
                 << " | Semelhanca: " << (*itemC).semelhanca[(*atual).id] << endl;
+
+            encontrou = true;
         }
 
         atual = (*atual).proximo;
+    }
+
+    if (!encontrou)
+    {
+        cout << "Nenhum item encontrado." << endl;
     }
 }
 
@@ -260,8 +314,7 @@ void esperarEnter()
 {
     cout << endl;
     cout << "Pressione ENTER para continuar";
-    cin.ignore(); //limpa o buffer que esta salvo do enter anterior com cin >> 1 >> enter
-    cin.get(); // esperando o proximo enter pra retornar menu
+    cin.get(); // esperando o proximo enter pra retornar menu (o buffer ja foi limpo na leitura)
 }
 
 void exibirMenu()
@@ -299,12 +352,20 @@ void executarMenu()
     {
         exibirMenu();
 
-        if (!(cin >> opcao))
+        while (!(cin >> opcao) || opcao < 1 || opcao > 10)
         {
+            if (cin.eof())
+            {
+                return;
+            }
+
             cin.clear();
-            cin.ignore();
-            cout << "Entrada invalida! Por favor, digite um numero.";
+            cin.ignore(10000, '\n');
+            cout << "Entrada invalida! Por favor, digite um numero de 1 a 10." << endl;
+            cout << "Escolha uma opcao: ";
         }
+
+        cin.ignore(10000, '\n');
 
         switch (opcao)
         {
