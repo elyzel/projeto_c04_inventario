@@ -35,6 +35,30 @@ Item* inicio = nullptr;
 Item* fim = nullptr;
 int quantidade_de_items = 0;
 
+// Le um inteiro dentro de [minimo, maximo], repetindo ate o usuario digitar um valor valido.
+int lerInteiroNoIntervalo(string mensagem, int minimo, int maximo)
+{
+    int valor;
+
+    cout << mensagem;
+
+    while (!(cin >> valor) || valor < minimo || valor > maximo)
+    {
+        if (cin.eof())
+        {
+            return minimo;
+        }
+
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Valor inválido!" << endl << "Digite um número de " << minimo << " a " << maximo << ": ";
+    }
+
+    cin.ignore(10000, '\n');
+
+    return valor;
+}
+
 // Arvore binaria de busca (chave = nome)
 struct node
 {
@@ -45,6 +69,19 @@ struct node
 
 node* raiz = NULL;
 
+string converter_para_minusculas(string texto)
+{
+    for (int i = 0; i < (int)texto.length(); i++)
+    {
+        if (texto[i] >= 'A' && texto[i] <= 'Z')
+        {
+            texto[i] = texto[i] + ('a' - 'A');
+        }
+    }
+
+    return texto;
+}
+
 void insert(node* & current, Item* data)
 {
     if (current == NULL)
@@ -54,7 +91,7 @@ void insert(node* & current, Item* data)
         current->left = NULL;
         current->right = NULL;
     }
-    else if (data->nome < current->data->nome)
+    else if (converter_para_minusculas(data->nome) < converter_para_minusculas(current->data->nome))
     {
         insert(current->left, data);
     }
@@ -62,6 +99,51 @@ void insert(node* & current, Item* data)
     {
         insert(current->right, data);
     }
+}
+
+// Percorre a arvore em ordem (esquerda -> no -> direita).
+// Como a chave da arvore e o nome, o resultado sai em ordem alfabetica.
+void imprimir_em_ordem(node* atual)
+{
+    if (atual == NULL)
+    {
+        return;
+    }
+
+    imprimir_em_ordem(atual->left);
+
+    cout << "Código: " << atual->data->id
+        << " | Nome: " << atual->data->nome
+        << " | Dono: " << atual->data->dono
+        << " | Propriedade mágica: " << atual->data->propriedadeMagica
+        << " | Raridade: " << atual->data->raridade << endl;
+
+    imprimir_em_ordem(atual->right);
+}
+
+// Busca um nome na arvore: se for menor que o do no atual, desce pela
+// esquerda; se for maior, desce pela direita; se for igual, achou.
+bool existe_na_arvore(node* atual, string nome)
+{
+    if (atual == NULL)
+    {
+        return false;
+    }
+
+    string nome_buscado = converter_para_minusculas(nome);
+    string nome_do_no = converter_para_minusculas(atual->data->nome);
+
+    if (nome_buscado == nome_do_no)
+    {
+        return true;
+    }
+
+    if (nome_buscado < nome_do_no)
+    {
+        return existe_na_arvore(atual->left, nome);
+    }
+
+    return existe_na_arvore(atual->right, nome);
 }
 
 // Isso é um ponteiro para ponteiro
@@ -91,21 +173,21 @@ bool preencher_semelhancas(int id1, int id2)
 
     if (item1 == nullptr || item2 == nullptr)
     {
-        cout << "Item nao encontrado" << endl;
+        cout << "Item não encontrado" << endl;
 
         return false;
     }
 
     if ((*item2).id == (*item1).id)
     {
-        cout << "Um item nao pode ter semelhanca com ele mesmo";
+        cout << "Um item não pode ter semelhança com ele mesmo" << endl;
 
         return false;
     }
 
     int valor;
 
-    cout << "Digite a semelhanca entre o item 1 (" << (*item1).nome << ") e o item 2 (" << (*item2).nome << "): ";
+    cout << "Digite a semelhança entre o item 1 (" << (*item1).nome << ") e o item 2 (" << (*item2).nome << "): ";
 
     cin >> valor;
     cin.ignore(10000, '\n');
@@ -118,6 +200,12 @@ bool preencher_semelhancas(int id1, int id2)
 
 void inserirItem()
 {
+    if (quantidade_de_items >= MAX_ITENS)
+    {
+        cout << "Limite de " << MAX_ITENS << " itens atingido." << "Não é possível cadastrar mais itens." << endl;
+        return;
+    }
+
     Item* novoItem = new Item;
 
     for (int i = 0; i < MAX_ITENS; i++)
@@ -131,9 +219,7 @@ void inserirItem()
     getline(cin, (*novoItem).dono);
     cout << "Digite a propriedade mágica do item: ";
     getline(cin, (*novoItem).propriedadeMagica);
-    cout << "Digite a raridade do item: ";
-    cin >> (*novoItem).raridade;
-    cin.ignore(10000, '\n');
+    (*novoItem).raridade = lerInteiroNoIntervalo("Digite a raridade do item (0 a 100): ", 0, 100);
     (*novoItem).proximo = nullptr;
 
     if (inicio == nullptr)
@@ -152,7 +238,7 @@ void inserirItem()
 
     insert(raiz, novoItem); // guarda na arvore
 
-    cout << "Item cadastrado com sucesso! Codigo do item: " << (*novoItem).id << endl;
+    cout << "Item cadastrado com sucesso!" << endl << "Codigo do item: " << (*novoItem).id << endl;
 }
 
 void listarItensCadastrados()
@@ -169,7 +255,7 @@ void listarItensCadastrados()
 
         while (atual != nullptr)
         {
-            cout << "Codigo: " << (*atual).id
+            cout << "Código: " << (*atual).id
                 << " | Nome: " << (*atual).nome
                 << " | Dono: " << (*atual).dono << endl;
 
@@ -190,10 +276,10 @@ void cadastrarSimilaridade()
 
     listarItensCadastrados();
 
-    cout << "Informe o codigo do item 1: ";
+    cout << "Informe o código do item 1: ";
     cin >> id1;
     cin.ignore(10000, '\n');
-    cout << "Informe o codigo do item 2: ";
+    cout << "Informe o código do item 2: ";
     cin >> id2;
     cin.ignore(10000, '\n');
 
@@ -201,11 +287,11 @@ void cadastrarSimilaridade()
 
     if (preencheu_semelhanca)
     {
-        cout << "Semelança preenchida" << endl;
+        cout << "Semelhança preenchida" << endl;
     }
     else
     {
-        cout << "Nao foi possivel preencher semelhanca" << endl;
+        cout << "Não foi possível preencher semelhança" << endl;
     }
 }
 
@@ -224,7 +310,7 @@ void buscarItens()
     cout << "Digite o nome do jogador: ";
     getline(cin, jogador);
 
-    cout << "Digite o valor minimo de similaridade: ";
+    cout << "Digite o valor mínimo de similaridade: ";
     cin >> valor;
     cin.ignore(10000, '\n');
 
@@ -233,7 +319,7 @@ void buscarItens()
     // Para usuario saber quais itens ele pode buscar semelhanca e saber o codigo do item
     listarItensCadastrados();
 
-    cout << "Digite o codigo do item que deseja buscar semelhanca: ";
+    cout << "Digite o código do item que deseja buscar semelhança: ";
     cin >> codigo;
     cin.ignore(10000, '\n');
 
@@ -248,12 +334,12 @@ void buscarItens()
 
     if (itemC == nullptr)
     {
-        cout << "Item nao encontrado!" << endl;
+        cout << "Item não encontrado!" << endl;
         return;
     }
 
     cout << endl;
-    cout << "Itens que nao pertencem a " << jogador << " e tem semelhanca maior que "
+    cout << "Itens que não pertencem a " << jogador << " e tem semelhança maior que "
         << valor << " com " << (*itemC).nome << ":" << endl;
 
     bool encontrou = false;
@@ -266,7 +352,7 @@ void buscarItens()
         {
             cout << "Nome: " << (*atual).nome
                 << " | Dono: " << (*atual).dono
-                << " | Semelhanca: " << (*itemC).semelhanca[(*atual).id] << endl;
+                << " | Semelhança: " << (*itemC).semelhanca[(*atual).id] << endl;
 
             encontrou = true;
         }
@@ -282,32 +368,50 @@ void buscarItens()
 
 void verificarExistencia()
 {
-    cout << "Funcao Verificar Existencia em construcao.";
+    string nome;
+
+    cout << "Digite o nome do item que deseja procurar: ";
+    getline(cin, nome);
+
+    if (existe_na_arvore(raiz, nome))
+    {
+        cout << "Item encontrado!" << endl;
+    }
+    else
+    {
+        cout << "Item não encontrado!" << endl;
+    }
 }
 
 void listarAlfabeticamente()
 {
-    cout << "Funcao Listar Alfabeticamente em construcao.";
+    if (raiz == NULL)
+    {
+        cout << "Nenhum item cadastrado." << endl;
+        return;
+    }
+
+    imprimir_em_ordem(raiz);
 }
 
 void listarRaridade()
 {
-    cout << "Funcao Listar por Raridade em construcao.";
+    cout << "Função Listar por Raridade em construção.";
 }
 
 void buscarPropriedade()
 {
-    cout << "Funcao Buscar por Propriedade em construcao.";
+    cout << "Função Buscar por Propriedade em construção.";
 }
 
 void contarPropriedades()
 {
-    cout << "Funcao Contar Propriedades em construcao.";
+    cout << "Função Contar Propriedades em construção.";
 }
 
 void removerItens()
 {
-    cout << "Funcao Remover Itens em construcao.";
+    cout << "Função Remover Itens em construção.";
 }
 
 void esperarEnter()
@@ -331,17 +435,16 @@ void exibirMenu()
     criar_texto(" 1 > Inserir item");
     criar_texto(" 2 > Cadastrar similaridade de itens");
     criar_texto(" 3 > Buscar itens similares");
-    criar_texto(" 4 > Verificar a existencia de um item");
-    criar_texto(" 5 > Listar itens em ordem alfabetica");
+    criar_texto(" 4 > Verificar a existência de um item");
+    criar_texto(" 5 > Listar itens em ordem alfabética");
     criar_texto(" 6 > Listar itens em ordem descrescente de raridade");
-    criar_texto(" 7 > Itens com a mesma propriedade magica");
-    criar_texto(" 8 > Contar itens com a mesma propriedade magica");
+    criar_texto(" 7 > Itens com a mesma propriedade mágica");
+    criar_texto(" 8 > Contar itens com a mesma propriedade mágica");
     criar_texto(" 9 > Remover itens menos raros");
     criar_texto(" 10 > Sair");
 
-    cout << vermelho << endl;
-
-    cout << endl << "Escolha uma opcao: ";
+    // So o prompt fica vermelho; o reset devolve a cor normal ao terminal
+    cout << endl << vermelho << "Escolha uma opcao: " << reset;
 }
 
 void executarMenu()
@@ -361,8 +464,8 @@ void executarMenu()
 
             cin.clear();
             cin.ignore(10000, '\n');
-            cout << "Entrada invalida! Por favor, digite um numero de 1 a 10." << endl;
-            cout << "Escolha uma opcao: ";
+            cout << "Entrada inválida! Por favor, digite um número de 1 a 10." << endl;
+            cout << "Escolha uma opção: ";
         }
 
         cin.ignore(10000, '\n');
@@ -410,7 +513,7 @@ void executarMenu()
             return;
 
         default:
-            cout << endl << "Opcao invalida!\n";
+            cout << endl << "Opção inválida!\n";
         }
 
         esperarEnter();
