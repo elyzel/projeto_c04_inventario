@@ -10,6 +10,10 @@ Dev 5: Wendel Iury - 972
 #include <string>
 const int MAX_ITENS = 100;
 
+// Faixa aceita para a semelhança entre dois itens
+const int SEMELHANCA_MINIMA = 0;
+const int SEMELHANCA_MAXIMA = 10;
+
 using namespace std;
 
 void criar_texto(string texto)
@@ -57,6 +61,53 @@ int lerInteiroNoIntervalo(string mensagem, int minimo, int maximo)
     cin.ignore(10000, '\n');
 
     return valor;
+}
+
+// Remove espacos (e tabs) do comeco e do fim do texto.
+// Exemplo: "  Espada  " vira "Espada"
+string trim(string texto)
+{
+    int comeco = 0;
+    int final = (int)texto.length() - 1;
+
+    while (comeco <= final && (texto[comeco] == ' ' || texto[comeco] == '\t' || texto[comeco] == '\r' || texto[comeco] == '\n'))
+    {
+        comeco++;
+    }
+
+    while (final >= comeco && (texto[final] == ' ' || texto[final] == '\t' || texto[final] == '\r' || texto[final] == '\n'))
+    {
+        final--;
+    }
+
+    return texto.substr(comeco, final - comeco + 1);
+}
+
+// Le uma linha de texto, apaga os espacos das pontas e repete ate o usuario digitar algo.
+string lerTextoNaoVazio(string mensagem)
+{
+    string texto;
+
+    cout << mensagem;
+
+    while (true)
+    {
+        getline(cin, texto);
+
+        if (cin.eof())
+        {
+            return "";
+        }
+
+        texto = trim(texto);
+
+        if (texto != "")
+        {
+            return texto;
+        }
+
+        cout << "O campo não pode ficar vazio!" << endl << mensagem;
+    }
 }
 
 // Arvore binaria de busca (chave = nome)
@@ -185,12 +236,10 @@ bool preencher_semelhancas(int id1, int id2)
         return false;
     }
 
-    int valor;
+    string mensagem = "Digite a semelhança entre o item 1 (" + (*item1).nome + ") e o item 2 ("
+        + (*item2).nome + ") [" + to_string(SEMELHANCA_MINIMA) + " a " + to_string(SEMELHANCA_MAXIMA) + "]: ";
 
-    cout << "Digite a semelhança entre o item 1 (" << (*item1).nome << ") e o item 2 (" << (*item2).nome << "): ";
-
-    cin >> valor;
-    cin.ignore(10000, '\n');
+    int valor = lerInteiroNoIntervalo(mensagem, SEMELHANCA_MINIMA, SEMELHANCA_MAXIMA);
 
     (*item2).semelhanca[item1_index] = valor;
     (*item1).semelhanca[item2_index] = valor;
@@ -202,7 +251,7 @@ void inserirItem()
 {
     if (quantidade_de_items >= MAX_ITENS)
     {
-        cout << "Limite de " << MAX_ITENS << " itens atingido." << "Não é possível cadastrar mais itens." << endl;
+        cout << "Limite de " << MAX_ITENS << " itens atingido." << " Não é possível cadastrar mais itens." << endl;
         return;
     }
 
@@ -213,12 +262,9 @@ void inserirItem()
         (*novoItem).semelhanca[i] = 0;
     }
 
-    cout << "Digite o nome do item: ";
-    getline(cin, (*novoItem).nome);
-    cout << "Digite o dono do item: ";
-    getline(cin, (*novoItem).dono);
-    cout << "Digite a propriedade mágica do item: ";
-    getline(cin, (*novoItem).propriedadeMagica);
+    (*novoItem).nome = lerTextoNaoVazio("Digite o nome do item: ");
+    (*novoItem).dono = lerTextoNaoVazio("Digite o dono do item: ");
+    (*novoItem).propriedadeMagica = lerTextoNaoVazio("Digite a propriedade mágica do item: ");
     (*novoItem).raridade = lerInteiroNoIntervalo("Digite a raridade do item (0 a 100): ", 0, 100);
     (*novoItem).proximo = nullptr;
 
@@ -238,12 +284,12 @@ void inserirItem()
 
     insert(raiz, novoItem); // guarda na arvore
 
-    cout << "Item cadastrado com sucesso!" << endl << "Codigo do item: " << (*novoItem).id << endl;
+    cout << "Item cadastrado com sucesso!" << endl << "Código do item: " << (*novoItem).id << endl;
 }
 
 void listarItensCadastrados()
 {
-    char resposta;
+    char resposta = 'n';
 
     cout << "Deseja ver a lista de itens cadastrados? (s/n): ";
     cin >> resposta;
@@ -276,12 +322,8 @@ void cadastrarSimilaridade()
 
     listarItensCadastrados();
 
-    cout << "Informe o código do item 1: ";
-    cin >> id1;
-    cin.ignore(10000, '\n');
-    cout << "Informe o código do item 2: ";
-    cin >> id2;
-    cin.ignore(10000, '\n');
+    id1 = lerInteiroNoIntervalo("Informe o código do item 1: ", 0, quantidade_de_items - 1);
+    id2 = lerInteiroNoIntervalo("Informe o código do item 2: ", 0, quantidade_de_items - 1);
 
     bool preencheu_semelhanca = preencher_semelhancas(id1, id2);
 
@@ -307,21 +349,17 @@ void buscarItens()
         return;
     }
 
-    cout << "Digite o nome do jogador: ";
-    getline(cin, jogador);
+    jogador = lerTextoNaoVazio("Digite o nome do jogador: ");
 
-    cout << "Digite o valor mínimo de similaridade: ";
-    cin >> valor;
-    cin.ignore(10000, '\n');
+    valor = lerInteiroNoIntervalo("Digite o valor mínimo de similaridade (" + to_string(SEMELHANCA_MINIMA)
+        + " a " + to_string(SEMELHANCA_MAXIMA) + "): ", SEMELHANCA_MINIMA, SEMELHANCA_MAXIMA);
 
     cout << endl;
 
     // Para usuario saber quais itens ele pode buscar semelhanca e saber o codigo do item
     listarItensCadastrados();
 
-    cout << "Digite o código do item que deseja buscar semelhança: ";
-    cin >> codigo;
-    cin.ignore(10000, '\n');
+    codigo = lerInteiroNoIntervalo("Digite o código do item que deseja buscar semelhança: ", 0, quantidade_de_items - 1);
 
     Item* atual;
 
@@ -339,16 +377,20 @@ void buscarItens()
     }
 
     cout << endl;
-    cout << "Itens que não pertencem a " << jogador << " e tem semelhança maior que "
+    cout << "Itens que não pertencem a " << jogador << " e têm semelhança mínima de "
         << valor << " com " << (*itemC).nome << ":" << endl;
 
     bool encontrou = false;
+    string jogador_minusculo = converter_para_minusculas(jogador);
 
     atual = inicio;
 
     while (atual != nullptr)
     {
-        if ((*atual).id != (*itemC).id && (*atual).dono != jogador && (*itemC).semelhanca[(*atual).id] > valor)
+        // compara o dono ignorando maiusculas/minusculas (Daniel == daniel)
+        if ((*atual).id != (*itemC).id
+            && converter_para_minusculas((*atual).dono) != jogador_minusculo
+            && (*itemC).semelhanca[(*atual).id] >= valor)
         {
             cout << "Nome: " << (*atual).nome
                 << " | Dono: " << (*atual).dono
@@ -368,10 +410,7 @@ void buscarItens()
 
 void verificarExistencia()
 {
-    string nome;
-
-    cout << "Digite o nome do item que deseja procurar: ";
-    getline(cin, nome);
+    string nome = lerTextoNaoVazio("Digite o nome do item que deseja procurar: ");
 
     if (existe_na_arvore(raiz, nome))
     {
@@ -429,7 +468,7 @@ void exibirMenu()
     cout << endl;
 
     criar_texto("==========================================");
-    criar_texto("             INVENTARIO D&D               ");
+    criar_texto("             INVENTÁRIO D&D               ");
     criar_texto("==========================================");
     criar_texto("");
     criar_texto(" 1 > Inserir item");
@@ -444,7 +483,7 @@ void exibirMenu()
     criar_texto(" 10 > Sair");
 
     // So o prompt fica vermelho; o reset devolve a cor normal ao terminal
-    cout << endl << vermelho << "Escolha uma opcao: " << reset;
+    cout << endl << vermelho << "Escolha uma opção: " << reset;
 }
 
 void executarMenu()
