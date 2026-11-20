@@ -10,21 +10,14 @@ Dev 4: Wendel Iury - 972
 #include <cmath>
 const int MAX_ITENS = 100;
 
-// Faixa aceita para a semelhança entre dois itens
 const int SEMELHANCA_MINIMA = 0;
 const int SEMELHANCA_MAXIMA = 10;
 
 // Abertura da bolsa: um circulo com este raio (mesma unidade dos pontos do contorno).
-// O enunciado nao diz qual e o tamanho/formato da abertura: confirmar com o professor/monitor.
 const double RAIO_ABERTURA = 10.0;
 const double PI = 3.14159265358979;
 
-// Como decidir se o item passa pela abertura (e so trocar a constante CRITERIO_ABERTURA):
-//   CRITERIO_CIRCULO: passa se o menor circulo que contem o item tem raio <= RAIO_ABERTURA
-//   CRITERIO_AREA:    passa se a area do poligono <= area da abertura (PI * RAIO_ABERTURA ao quadrado)
-const int CRITERIO_CIRCULO = 0;
-const int CRITERIO_AREA = 1;
-const int CRITERIO_ABERTURA = CRITERIO_CIRCULO;
+const int CRITERIO_ABERTURA = 0;
 
 // Quantidade maxima de pontos (vertices) do contorno de um item
 const int MAX_PONTOS = 20;
@@ -180,13 +173,6 @@ string converter_para_minusculas(string texto)
     return texto;
 }
 
-// ---------------------------------------------------------------------------
-// Geometria (mesmas ideias da aula de Algoritmos Geometricos e Fecho Convexo):
-// o contorno do item e uma lista de pontos que precisa formar um poligono convexo,
-// e o item precisa passar pela abertura da bolsa.
-// ---------------------------------------------------------------------------
-
-// Ponto no plano (como na aula, mas com double para aceitar coordenadas decimais)
 struct ponto
 {
     double x;
@@ -203,7 +189,7 @@ double valor_absoluto(double numero)
     return numero;
 }
 
-// Area (com sinal) do triangulo abc, formula de geometrico.cpp (aula de Algoritmos Geometricos):
+// Area (com sinal) do triangulo abc
 // positiva se a -> b -> c esta em sentido anti-horario, negativa se horario e 0 se alinhados.
 double area_triangulo(ponto a, ponto b, ponto c)
 {
@@ -215,7 +201,6 @@ double area_triangulo(ponto a, ponto b, ponto c)
 }
 
 // Retorna 1 se p estiver a esquerda de ab, -1 se estiver a direita e 0 se estiver alinhado
-// (mesma funcao de geometrico.cpp).
 int lado(ponto a, ponto b, ponto p)
 {
     double s = area_triangulo(a, b, p);
@@ -224,7 +209,7 @@ int lado(ponto a, ponto b, ponto p)
     {
         return 1;
     }
-    else if (s < 0)
+    if (s < 0)
     {
         return -1;
     }
@@ -232,9 +217,6 @@ int lado(ponto a, ponto b, ponto p)
     return 0;
 }
 
-// Os pontos (dados em ordem) formam um poligono convexo?
-// Num poligono convexo, para cada lado (i -> j) todos os outros pontos ficam do mesmo
-// lado dele, e esse lado e o mesmo para todos os lados do poligono.
 bool eh_poligono_convexo(ponto contorno[], int n)
 {
     int sentido = 0; // 0 = ainda nao sei, 1 = esquerda, -1 = direita
@@ -399,22 +381,7 @@ bool item_cabe_na_bolsa()
     }
 
     double area = area_poligono(contorno, n);
-
-    if (CRITERIO_ABERTURA == CRITERIO_AREA)
-    {
-        double area_abertura = PI * RAIO_ABERTURA * RAIO_ABERTURA;
-
-        if (area > area_abertura + 1e-9)
-        {
-            cout << "O item não passa pela abertura da bolsa (área " << area
-                << " maior que a da abertura, " << area_abertura << ")." << endl;
-            return false;
-        }
-
-        cout << "O item passa pela abertura da bolsa (área " << area << ")." << endl;
-        return true;
-    }
-
+    
     double r2 = menor_circulo_r2(contorno, n);
 
     if (r2 < 0)
@@ -446,8 +413,8 @@ bool item_cabe_na_bolsa()
 struct node
 {
     Item* data;
-    struct node* left;
-    struct node* right;
+    node* left;
+    node* right;
 };
 
 node* raiz = NULL;
@@ -513,8 +480,6 @@ void insert(node* & current, Item* data, int criterio)
     }
 }
 
-// Como find_less_save_right de abb.cpp: desce ate o menor no da subarvore (o mais a esquerda),
-// liga o pai dele ao filho direito desse no e devolve o no solto.
 node* find_less_save_right(node* & current)
 {
     if (current->left != NULL)
@@ -530,8 +495,8 @@ node* find_less_save_right(node* & current)
 
 // Remove da arvore o no que guarda exatamente este item (o Item em si NAO e apagado aqui).
 // Como a arvore aceita chaves repetidas, em vez de parar no primeiro no com a mesma chave
-// (como o remove de abb.cpp), a busca continua ate achar o no que aponta para este item.
-// Casos (iguais aos de abb.cpp):
+// a busca continua ate achar o no que aponta para este item.
+// Casos:
 //   1) sem filho direito: o filho esquerdo (ou NULL) ocupa o lugar do no;
 //   2) sem filho esquerdo: o filho direito ocupa o lugar do no;
 //   3) com dois filhos: o no recebe o item do menor no da subarvore direita, e esse no e apagado.
@@ -572,7 +537,7 @@ void remover_da_arvore(node* & atual, Item* item, int criterio)
     }
 }
 
-// Como destruct de abb.cpp: apaga todos os nos da arvore (os Items nao sao apagados aqui).
+// apaga todos os nos da arvore (os Items nao sao apagados aqui).
 void destruct(node* & current)
 {
     if (current != NULL)
