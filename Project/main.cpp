@@ -8,18 +8,17 @@ Dev 4: Wendel Iury - 972
 #include <iostream>
 #include <string>
 #include <cmath>
-const int MAX_ITENS = 100;
 
+const int MAX_ITENS = 100;
 const int SEMELHANCA_MINIMA = 0;
 const int SEMELHANCA_MAXIMA = 10;
 
-// Abertura da bolsa: um circulo com este raio (mesma unidade dos pontos do contorno).
+// abertura da bolsa: um círculo com raio 10 (mesma unidade dos pontos do contorno)
 const double RAIO_ABERTURA = 10.0;
 const double PI = 3.14159265358979;
-
 const int CRITERIO_ABERTURA = 0;
 
-// Quantidade maxima de pontos (vertices) do contorno de um item
+// quantidade máxima de pontos (vértices) do contorno de um item
 const int MAX_PONTOS = 20;
 
 using namespace std;
@@ -39,7 +38,7 @@ struct Item
     string propriedadeMagica;
     int id;
     int raridade;
-    int semelhanca[MAX_ITENS]; // semelhanca[j] = peso da semelhanca com o item de id j
+    int semelhanca[MAX_ITENS]; // semelhança[j] = peso da semelhança com o item de id j
     Item* proximo;
 };
 
@@ -47,12 +46,12 @@ Item* inicio = nullptr;
 Item* fim = nullptr;
 int quantidade_de_items = 0;
 
-// id_em_uso[i] e true quando existe um item com id i.
-// Como a semelhanca e indexada pelo id, os ids ficam sempre entre 0 e MAX_ITENS - 1,
-// e o id de um item removido pode ser reaproveitado por um item novo.
+// id_em_uso[i] é true quando existe um item com id i
+// como a semelhança é indexada pelo id, os ids ficam sempre entre 0 e MAX_ITENS - 1,
+// e o id de um item removido pode ser reaproveitado por um item novo
 bool id_em_uso[MAX_ITENS];
 
-// Devolve o menor id que nao esta em uso
+// devolve o menor id que não está em uso
 int obter_menor_id_livre()
 {
     int i = 0;
@@ -65,7 +64,7 @@ int obter_menor_id_livre()
     return i;
 }
 
-// Le um inteiro dentro de [minimo, maximo], repetindo ate o usuario digitar um valor valido.
+// lê um inteiro dentro de [mínimo, máximo], repetindo até o usuário digitar um valor válido
 int lerInteiroNoIntervalo(string mensagem, int minimo, int maximo)
 {
     int valor;
@@ -89,7 +88,7 @@ int lerInteiroNoIntervalo(string mensagem, int minimo, int maximo)
     return valor;
 }
 
-// Le um numero real (aceita inteiro ou decimal com ponto), repetindo ate o usuario digitar algo valido.
+// lê um número real (aceita inteiro ou decimal com ponto), repetindo até o usuário digitar algo válido
 double lerNumero(string mensagem)
 {
     double valor;
@@ -113,8 +112,8 @@ double lerNumero(string mensagem)
     return valor;
 }
 
-// Remove espacos (e tabs) do comeco e do fim do texto.
-// Exemplo: "  Espada  " vira "Espada"
+// remove espaços (e tabs) do começo e do fim do texto
+// exemplo: "  Espada  " vira "Espada"
 string trim(string texto)
 {
     int comeco = 0;
@@ -133,7 +132,7 @@ string trim(string texto)
     return texto.substr(comeco, final - comeco + 1);
 }
 
-// Le uma linha de texto, apaga os espacos das pontas e repete ate o usuario digitar algo.
+// lê uma linha de texto, apaga os espaços das pontas e repete até o usuário digitar algo
 string lerTextoNaoVazio(string mensagem)
 {
     string texto;
@@ -189,8 +188,8 @@ double valor_absoluto(double numero)
     return numero;
 }
 
-// Area (com sinal) do triangulo abc
-// positiva se a -> b -> c esta em sentido anti-horario, negativa se horario e 0 se alinhados.
+// área (com sinal) do triângulo abc
+// positiva se a -> b -> c está em sentido anti-horário, negativa se horário e 0 se alinhados
 double area_triangulo(ponto a, ponto b, ponto c)
 {
     return (
@@ -200,7 +199,7 @@ double area_triangulo(ponto a, ponto b, ponto c)
     ) / 2.0;
 }
 
-// Retorna 1 se p estiver a esquerda de ab, -1 se estiver a direita e 0 se estiver alinhado
+// retorna 1 se p estiver à esquerda de ab, -1 se estiver à direita e 0 se estiver alinhado
 int lado(ponto a, ponto b, ponto p)
 {
     double s = area_triangulo(a, b, p);
@@ -219,7 +218,7 @@ int lado(ponto a, ponto b, ponto p)
 
 bool eh_poligono_convexo(ponto contorno[], int n)
 {
-    int sentido = 0; // 0 = ainda nao sei, 1 = esquerda, -1 = direita
+    int sentido = 0; // 0 = ainda não sei, 1 = esquerda, -1 = direita
 
     for (int i = 0; i < n; i++)
     {
@@ -241,7 +240,7 @@ bool eh_poligono_convexo(ponto contorno[], int n)
 
             if (l == 0)
             {
-                continue; // ponto alinhado com o lado: nao decide nada
+                continue; // ponto alinhado com o lado: não decide nada
             }
 
             if (sentido == 0)
@@ -255,11 +254,11 @@ bool eh_poligono_convexo(ponto contorno[], int n)
         }
     }
 
-    return sentido != 0; // sentido 0 = todos os pontos alinhados (nao e um poligono)
+    return sentido != 0; // sentido 0 = todos os pontos alinhados (não é um polígono)
 }
 
-// Area do poligono convexo: divide em triangulos a partir do primeiro ponto ("leque")
-// e soma a area de cada triangulo com area_triangulo.
+// área do polígono convexo: divide em triângulos a partir do primeiro ponto ("leque")
+// e soma a área de cada triângulo com area_triangulo
 double area_poligono(ponto contorno[], int n)
 {
     double soma = 0;
@@ -269,10 +268,10 @@ double area_poligono(ponto contorno[], int n)
         soma += area_triangulo(contorno[0], contorno[i], contorno[i + 1]);
     }
 
-    return valor_absoluto(soma); // o sinal so indica o sentido (horario/anti-horario)
+    return valor_absoluto(soma); // o sinal só indica o sentido (horário/anti-horário)
 }
 
-// Todos os pontos estao dentro (ou na borda) do circulo de centro (cx, cy) e raio ao quadrado r2?
+// todos os pontos estão dentro (ou na borda) do círculo de centro (cx, cy) e raio ao quadrado r2?
 bool todos_dentro(ponto contorno[], int n, double cx, double cy, double r2)
 {
     for (int i = 0; i < n; i++)
@@ -290,16 +289,16 @@ bool todos_dentro(ponto contorno[], int n, double cx, double cy, double r2)
     return true;
 }
 
-// Raio ao quadrado do MENOR circulo que contem todos os pontos.
-// Esse circulo sempre passa por 2 pontos (sendo eles as pontas do diametro) ou por 3 pontos.
-// Testamos todas as duplas e todas as triplas e ficamos com o menor circulo que contem tudo.
-// Se um item cabe em algum circulo de raio R (podendo girar), ele cabe no menor circulo dele.
-// Devolve -1 se nao achar nenhum (so acontece com pontos alinhados).
+// raio ao quadrado do MENOR círculo que contém todos os pontos
+// esse círculo sempre passa por 2 pontos (sendo eles as pontas do diâmetro) ou por 3 pontos
+// testamos todas as duplas e todas as triplas e ficamos com o menor círculo que contém tudo
+// se um item cabe em algum círculo de raio R (podendo girar), ele cabe no menor círculo dele
+// devolve -1 se não achar nenhum (só acontece com pontos alinhados)
 double menor_circulo_r2(ponto contorno[], int n)
 {
     double melhor = -1;
 
-    // Circulos definidos por 2 pontos (diametro)
+    // círculos definidos por 2 pontos (diâmetro)
     for (int i = 0; i < n; i++)
     {
         for (int j = i + 1; j < n; j++)
@@ -317,7 +316,7 @@ double menor_circulo_r2(ponto contorno[], int n)
         }
     }
 
-    // Circulos definidos por 3 pontos (circunferencia que passa pelos tres)
+    // círculos definidos por 3 pontos (circunferência que passa pelos três)
     for (int i = 0; i < n; i++)
     {
         for (int j = i + 1; j < n; j++)
@@ -332,7 +331,7 @@ double menor_circulo_r2(ponto contorno[], int n)
 
                 if (valor_absoluto(d) < 1e-12)
                 {
-                    continue; // tres pontos alinhados: nao formam circulo
+                    continue; // três pontos alinhados: não formam círculo
                 }
 
                 double a2 = ax * ax + ay * ay;
@@ -357,8 +356,8 @@ double menor_circulo_r2(ponto contorno[], int n)
     return melhor;
 }
 
-// Le o contorno do item e decide se ele pode ser adicionado na bolsa.
-// Devolve true se o contorno e um poligono convexo valido e passa pela abertura.
+// lê o contorno do item e decide se ele pode ser adicionado na bolsa
+// devolve true se o contorno é um polígono convexo válido e passa pela abertura
 bool item_cabe_na_bolsa()
 {
     ponto contorno[MAX_PONTOS];
@@ -406,8 +405,8 @@ bool item_cabe_na_bolsa()
 }
 
 // ---------------------------------------------------------------------------
-// Arvores binarias de busca. Sao DUAS arvores:
-//   raiz          -> chave = nome do item  (busca por nome e listagem alfabetica)
+// árvores binárias de busca, são DUAS árvores:
+//   raiz          -> chave = nome do item  (busca por nome e listagem alfabética)
 //   raiz_raridade -> chave = raridade      (listagem por raridade decrescente)
 // ---------------------------------------------------------------------------
 struct node
@@ -420,12 +419,12 @@ struct node
 node* raiz = NULL;
 node* raiz_raridade = NULL;
 
-// Criterios de ordenacao: dizem por qual campo a arvore compara os itens
+// critérios de ordenação: dizem por qual campo a árvore compara os itens
 const int POR_NOME = 0;
 const int POR_RARIDADE = 1;
 
-// Compara dois itens pelo criterio escolhido.
-// Devolve < 0 se 'a' vem antes de 'b', 0 se sao iguais nesse criterio e > 0 se 'a' vem depois.
+// compara dois itens pelo critério escolhido
+// devolve < 0 se 'a' vem antes de 'b', 0 se são iguais nesse critério e > 0 se 'a' vem depois
 int comparar_itens(Item* a, Item* b, int criterio)
 {
     if (criterio == POR_RARIDADE)
@@ -443,7 +442,7 @@ int comparar_itens(Item* a, Item* b, int criterio)
         return 0;
     }
 
-    // POR_NOME: compara os nomes ignorando maiusculas/minusculas
+    // por_nome: compara os nomes ignorando maiúsculas/minúsculas
     string texto_a = converter_para_minusculas(a->nome);
     string texto_b = converter_para_minusculas(b->nome);
 
@@ -460,7 +459,7 @@ int comparar_itens(Item* a, Item* b, int criterio)
     return 0;
 }
 
-// Regra das arvores: menor vai para a esquerda; igual ou maior vai para a direita.
+// regra das árvores: menor vai para a esquerda; igual ou maior vai para a direita
 void insert(node* & current, Item* data, int criterio)
 {
     if (current == NULL)
@@ -493,13 +492,13 @@ node* find_less_save_right(node* & current)
     return copy;
 }
 
-// Remove da arvore o no que guarda exatamente este item (o Item em si NAO e apagado aqui).
-// Como a arvore aceita chaves repetidas, em vez de parar no primeiro no com a mesma chave
-// a busca continua ate achar o no que aponta para este item.
-// Casos:
-//   1) sem filho direito: o filho esquerdo (ou NULL) ocupa o lugar do no;
-//   2) sem filho esquerdo: o filho direito ocupa o lugar do no;
-//   3) com dois filhos: o no recebe o item do menor no da subarvore direita, e esse no e apagado.
+// remove da árvore o nó que guarda exatamente este item (o Item em si não é apagado aqui)
+// como a árvore aceita chaves repetidas, em vez de parar no primeiro nó com a mesma chave
+// a busca continua até achar o nó que aponta para este item
+// casos:
+//   1) sem filho direito: o filho esquerdo (ou NULL) ocupa o lugar do nó;
+//   2) sem filho esquerdo: o filho direito ocupa o lugar do nó;
+//   3) com dois filhos: o nó recebe o item do menor nó da subárvore direita, e esse nó é apagado
 void remover_da_arvore(node* & atual, Item* item, int criterio)
 {
     if (atual == NULL)
@@ -537,7 +536,7 @@ void remover_da_arvore(node* & atual, Item* item, int criterio)
     }
 }
 
-// apaga todos os nos da arvore (os Items nao sao apagados aqui).
+// apaga todos os nós da árvore (os Items não são apagados aqui)
 void destruct(node* & current)
 {
     if (current != NULL)
@@ -558,8 +557,8 @@ void imprimir_item(Item* item)
         << " | Raridade: " << item->raridade << endl;
 }
 
-// Percorre a arvore em ordem (esquerda -> no -> direita).
-// Como a chave da arvore e o nome, o resultado sai em ordem alfabetica.
+// percorre a árvore em ordem (esquerda -> nó -> direita)
+// como a chave da árvore é o nome, o resultado sai em ordem alfabética
 void imprimir_em_ordem(node* atual)
 {
     if (atual == NULL)
@@ -574,8 +573,8 @@ void imprimir_em_ordem(node* atual)
     imprimir_em_ordem(atual->right);
 }
 
-// Percorre a arvore de raridade ao contrario (direita -> no -> esquerda):
-// os maiores vem primeiro, entao a saida sai em ordem decrescente de raridade.
+// percorre a árvore de raridade ao contrário (direita -> nó -> esquerda):
+// os maiores vêm primeiro, então a saída sai em ordem decrescente de raridade
 void imprimir_em_ordem_decrescente(node* atual)
 {
     if (atual == NULL)
@@ -590,8 +589,8 @@ void imprimir_em_ordem_decrescente(node* atual)
     imprimir_em_ordem_decrescente(atual->left);
 }
 
-// Busca um nome na arvore: se for menor que o do no atual, desce pela
-// esquerda; se for maior, desce pela direita; se for igual, achou.
+// busca um nome na árvore: se for menor que o do nó atual, desce pela
+// esquerda; se for maior, desce pela direita; se for igual, achou
 bool existe_na_arvore(node* atual, string nome)
 {
     if (atual == NULL)
@@ -615,9 +614,9 @@ bool existe_na_arvore(node* atual, string nome)
     return existe_na_arvore(atual->right, nome);
 }
 
-// Imprime (em ordem alfabetica de nome) os itens com a propriedade magica informada
-// (ja em minusculo) e devolve quantos sao. A arvore dos nomes nao esta ordenada por
-// propriedade, entao percorremos a arvore inteira (em ordem).
+// imprime (em ordem alfabética de nome) os itens com a propriedade mágica informada
+// (já em minúsculo) e devolve quantos são, a árvore dos nomes não está ordenada por
+// propriedade, então percorremos a árvore inteira (em ordem)
 int imprimir_propriedade(node* atual, string propriedade)
 {
     if (atual == NULL)
@@ -636,7 +635,7 @@ int imprimir_propriedade(node* atual, string propriedade)
     return total + imprimir_propriedade(atual->right, propriedade);
 }
 
-// Conta os itens com a propriedade magica informada (ja em minusculo). Mesmo percurso da funcao acima.
+// conta os itens com a propriedade mágica informada (já em minúsculo), mesmo percurso da função acima
 int contar_propriedade(node* atual, string propriedade)
 {
     if (atual == NULL)
@@ -654,7 +653,7 @@ int contar_propriedade(node* atual, string propriedade)
     return total + contar_propriedade(atual->right, propriedade);
 }
 
-// Isso é um ponteiro para ponteiro
+// isso é um ponteiro para ponteiro
 void encontrar_item(int id, Item** item_sendo_buscado, int* item_sendo_buscado_index)
 {
     *item_sendo_buscado = inicio;
@@ -698,8 +697,8 @@ bool preencher_semelhancas(int id1, int id2)
 
     int valor = lerInteiroNoIntervalo(mensagem, SEMELHANCA_MINIMA, SEMELHANCA_MAXIMA);
 
-    // semelhanca e indexada pelo id (e nao pela posicao na lista), porque depois
-    // de remover itens a posicao na lista deixa de ser igual ao id
+    // semelhança é indexada pelo id (e não pela posição na lista), porque depois
+    // de remover itens a posição na lista deixa de ser igual ao id
     (*item2).semelhanca[(*item1).id] = valor;
     (*item1).semelhanca[(*item2).id] = valor;
 
@@ -727,7 +726,7 @@ void inserirItem()
     (*novoItem).raridade = lerInteiroNoIntervalo("Digite a raridade do item (0 a 100): ", 0, 100);
     (*novoItem).proximo = nullptr;
 
-    // O item so entra na bolsa se o contorno for valido e passar pela abertura
+    // o item só entra na bolsa se o contorno for válido e passar pela abertura
     if (!item_cabe_na_bolsa())
     {
         cout << "Item não cadastrado." << endl;
@@ -750,8 +749,8 @@ void inserirItem()
     id_em_uso[(*novoItem).id] = true;
     quantidade_de_items++;
 
-    insert(raiz, novoItem, POR_NOME);               // arvore dos nomes
-    insert(raiz_raridade, novoItem, POR_RARIDADE);  // arvore das raridades
+    insert(raiz, novoItem, POR_NOME);               // árvore dos nomes
+    insert(raiz_raridade, novoItem, POR_RARIDADE);  // árvore das raridades
 
     cout << "Item cadastrado com sucesso!" << endl << "Código do item: " << (*novoItem).id << endl;
 }
@@ -779,7 +778,7 @@ void listarItensCadastrados()
     }
 }
 
-// Le uma lista de pares de codigos (com o peso S de cada par) e grava no grafo.
+// lê uma lista de pares de códigos (com o peso S de cada par) e grava no grafo
 void cadastrarSimilaridade()
 {
     if (inicio == nullptr)
@@ -797,8 +796,8 @@ void cadastrarSimilaridade()
     {
         cout << endl << "Par " << p << " de " << pares << endl;
 
-        // os ids vao de 0 a MAX_ITENS - 1 (podem ter "buracos" depois de remover itens);
-        // se o id nao existir, preencher_semelhancas avisa "Item não encontrado"
+        // os ids vão de 0 a MAX_ITENS - 1 (podem ter "buracos" depois de remover itens);
+        // se o id não existir, preencher_semelhancas avisa "Item não encontrado"
         int id1 = lerInteiroNoIntervalo("Informe o código do item 1: ", 0, MAX_ITENS - 1);
         int id2 = lerInteiroNoIntervalo("Informe o código do item 2: ", 0, MAX_ITENS - 1);
 
@@ -832,7 +831,7 @@ void buscarItens()
 
     cout << endl;
 
-    // Para usuario saber quais itens ele pode buscar semelhanca e saber o codigo do item
+    // para usuário saber quais itens ele pode buscar semelhança e saber o código do item
     listarItensCadastrados();
 
     codigo = lerInteiroNoIntervalo("Digite o código do item que deseja buscar semelhança: ", 0, MAX_ITENS - 1);
@@ -863,7 +862,7 @@ void buscarItens()
 
     while (atual != nullptr)
     {
-        // compara o dono ignorando maiusculas/minusculas (Daniel == daniel)
+        // compara o dono ignorando maiúsculas/minúsculas (Daniel == daniel)
         if ((*atual).id != (*itemC).id
             && converter_para_minusculas((*atual).dono) != jogador_minusculo
             && (*itemC).semelhanca[(*atual).id] > valor)
@@ -955,8 +954,8 @@ void contarPropriedades()
     cout << "Itens com a propriedade mágica \"" << propriedade << "\": " << quantidade << endl;
 }
 
-// Remove todos os itens com raridade menor que R, de TODAS as estruturas:
-// lista encadeada, as 2 arvores e o grafo (a semelhanca dos outros itens com ele volta a 0).
+// remove todos os itens com raridade menor que R, de TODAS as estruturas:
+// lista encadeada, as 2 árvores e o grafo (a semelhança dos outros itens com ele volta a 0)
 void removerItens()
 {
     if (inicio == nullptr)
@@ -980,11 +979,11 @@ void removerItens()
             cout << "Removido -> ";
             imprimir_item(atual);
 
-            // 1) tira das duas arvores (antes de apagar o item, pois a busca usa os campos dele)
+            // 1) tira das duas árvores (antes de apagar o item, pois a busca usa os campos dele)
             remover_da_arvore(raiz, atual, POR_NOME);
             remover_da_arvore(raiz_raridade, atual, POR_RARIDADE);
 
-            // 2) tira do grafo: zera a semelhanca de todos os itens com este
+            // 2) tira do grafo: zera a semelhança de todos os itens com este
             Item* outro = inicio;
 
             while (outro != nullptr)
@@ -1031,7 +1030,7 @@ void esperarEnter()
 {
     cout << endl;
     cout << "Pressione ENTER para continuar";
-    cin.get(); // esperando o proximo enter pra retornar menu (o buffer ja foi limpo na leitura)
+    cin.get(); // esperando o próximo enter pra retornar menu (o buffer já foi limpo na leitura)
 }
 
 void exibirMenu()
@@ -1056,7 +1055,7 @@ void exibirMenu()
     criar_texto(" 9 > Remover itens menos raros");
     criar_texto(" 10 > Sair");
 
-    // So o prompt fica vermelho; o reset devolve a cor normal ao terminal
+    // só o prompt fica vermelho; o reset devolve a cor normal ao terminal
     cout << endl << vermelho << "Escolha uma opção: " << reset;
 }
 
@@ -1135,7 +1134,7 @@ void executarMenu()
     }
 }
 
-// Libera toda a memoria alocada: os nos das 2 arvores e os Items da lista encadeada.
+// libera toda a memória alocada: os nós das 2 árvores e os Items da lista encadeada
 void liberar_tudo()
 {
     destruct(raiz);
